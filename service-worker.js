@@ -1,14 +1,16 @@
 const CACHE_NAME = 'music-player-v2';
-const staticAssets = [
-    '/Music/index.html',
-    '/Music/style.css',
-    '/Music/manifest.json',
-    '/Music/icon-192x192.png',
-    '/Music/icon-512x512.png'
-];
 
 // Get the GitHub Pages URL
 const GITHUB_URL = 'https://rescuepc-repairs.github.io/Music/';
+
+// Cache static assets
+const staticAssets = [
+    GITHUB_URL + 'index.html',
+    GITHUB_URL + 'style.css',
+    GITHUB_URL + 'manifest.json',
+    GITHUB_URL + 'icon-192x192.png',
+    GITHUB_URL + 'icon-512x512.png'
+];
 
 // Update music files to use GitHub URL
 const cachedMusicFiles = [
@@ -39,6 +41,89 @@ const cachedMusicFiles = [
     'Zac Brown Band - Knee Deep Feat. Jimmy Buffett (Official Music Video) ｜ You Get What You Give.mp4',
     'Zac Brown Band - Toes (Official Video).mp4'
 ].map(file => GITHUB_URL + 'music/' + file);
+
+// Install event - cache static assets and music files
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => {
+                // Cache static assets first
+                return cache.addAll(staticAssets)
+                    .then(() => {
+                        // Then cache music files
+                        return Promise.all(
+                            cachedMusicFiles.map(file => {
+                                return fetch(file)
+                                    .then(response => {
+                                        if (response.ok) {
+                                            return cache.put(file, response);
+                                        }
+                                        throw new Error(`Failed to cache ${file}`);
+                                    })
+                                    .catch(error => {
+                                        console.error(`Error caching ${file}:`, error);
+                                        // Continue with other files even if one fails
+                                        return null;
+                                    });
+                            })
+                        );
+                    })
+            })
+            .catch(error => {
+                console.error('Installation failed:', error);
+            })
+    );
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.filter(cacheName => {
+                    return cacheName.startsWith('music-player-') && cacheName !== CACHE_NAME;
+                }).map(cacheName => {
+                    return caches.delete(cacheName);
+                })
+            );
+        })
+    );
+});
+
+// Fetch event - serve from cache first, then network
+self.addEventListener('fetch', event => {
+    if (event.request.method === 'GET') {
+        event.respondWith(
+            caches.match(event.request).then(cachedResponse => {
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+
+                return fetch(event.request).then(response => {
+                    if (response.ok) {
+                        return caches.open(CACHE_NAME).then(cache => {
+                            cache.put(event.request, response.clone());
+                            return response;
+                        });
+                    }
+                    return response;
+                }).catch(() => {
+                    if (event.request.headers.get('range')) {
+                        // Handle range requests for video streaming
+                        return new Response(null, {
+                            status: 206,
+                            statusText: 'Partial Content',
+                            headers: {
+                                'Content-Range': 'bytes */*'
+                            }
+                        });
+                    }
+                    return new Response(null, { status: 404 });
+                });
+            })
+        );
+    }
+});
     '/music/Alan Jackson, Jimmy Buffett - It\'s Five O\' Clock Somewhere (Official HD Video).mp4',
     '/music/Billy Currington - People Are Crazy (Official Music Video).mp4',
     '/music/Billy Currington - Pretty Good At Drinkin\' Beer (Official Music Video).mp4',
