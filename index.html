@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Music Player</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <script>
+        // Preload the song list
+        const songs = [
+            { name: 'Alan Jackson, Jimmy Buffett - It\'s Five O\' Clock Somewhere', src: '/music/Alan Jackson, Jimmy Buffett - It\'s Five O\' Clock Somewhere (Official HD Video).mp4' },
+            { name: 'Billy Currington - People Are Crazy', src: '/music/Billy Currington - People Are Crazy (Official Music Video).mp4' },
+            { name: 'Billy Currington - Pretty Good At Drinkin\' Beer', src: '/music/Billy Currington - Pretty Good At Drinkin\' Beer (Official Music Video).mp4' },
+            { name: 'Chris Stapleton - Starting Over', src: '/music/Chris Stapleton - Starting Over (Official Music Video).mp4' },
+            { name: 'Chris Stapleton - Tennessee Whiskey', src: '/music/Chris Stapleton - Tennessee Whiskey (Official Audio).mp4' },
+            { name: 'Darius Rucker - Wagon Wheel', src: '/music/Darius Rucker - Wagon Wheel (Official Music Video).mp4' },
+            { name: 'Dierks Bentley - 5-1-5-0', src: '/music/Dierks Bentley - 5-1-5-0 (Official Music Video).mp4' },
+            { name: 'Dierks Bentley - Drunk On A Plane', src: '/music/Dierks Bentley - Drunk On A Plane (Official Music Video).mp4' },
+            { name: 'Dierks Bentley - Somewhere On A Beach', src: '/music/Dierks Bentley - Somewhere On A Beach (Official Music Video).mp4' },
+            { name: 'Florida Georgia Line - May We All ft. Tim McGraw', src: '/music/Florida Georgia Line - May We All ft. Tim McGraw.mp4' },
+            { name: 'Kenny Chesney - Don\'t Blink', src: '/music/Kenny Chesney - Don\'t Blink (Official Video).mp4' },
+            { name: 'Kenny Chesney - No Shoes, No Shirt, No Problems', src: '/music/Kenny Chesney - No Shoes, No Shirt, No Problems (Official Video).mp4' },
+            { name: 'Kenny Chesney, Uncle Kracker - When The Sun Goes Down', src: '/music/Kenny Chesney, Uncle Kracker - When The Sun Goes Down (Official Video).mp4' },
+            { name: 'Luke Bryan - Drunk On You', src: '/music/Luke Bryan - Drunk On You (Official Music Video).mp4' },
+            { name: 'Luke Bryan - Huntin\', Fishin\', And Lovin\' Every Day', src: '/music/Luke Bryan - Huntin\', Fishin\', And Lovin\' Every Day (Official Music Video).mp4' },
+            { name: 'Luke Bryan - I Don\'t Want This Night To End', src: '/music/Luke Bryan - I Don\'t Want This Night To End (Official Music Video).mp4' },
+            { name: 'Luke Bryan - That\'s My Kind Of Night', src: '/music/Luke Bryan - That\'s My Kind Of Night (Official Music Video).mp4' },
+            { name: 'Luke Combs - Beautiful Crazy', src: '/music/Luke Combs - Beautiful Crazy (Official Video).mp4' },
+            { name: 'Luke Combs - Hurricane', src: '/music/Luke Combs - Hurricane (Official Video).mp4' },
+            { name: 'Luke Combs - She Got the Best of Me', src: '/music/Luke Combs - She Got the Best of Me (Official Video).mp4' },
+            { name: 'Luke Combs - When It Rains It Pours', src: '/music/Luke Combs - When It Rains It Pours (Official Video).mp4' },
+            { name: 'Rehab - Bartender Song (Sittin\' At A Bar)', src: '/music/Rehab - Bartender Song (Sittin\' At A Bar).mp4' },
+            { name: 'Toby Keith - As Good As I Once Was', src: '/music/Toby Keith - As Good As I Once Was.mp4' },
+            { name: 'Zac Brown Band - Chicken Fried', src: '/music/Zac Brown Band - Chicken Fried (Official Music Video) ｜ The Foundation.mp4' },
+            { name: 'Zac Brown Band - Knee Deep Feat. Jimmy Buffett', src: '/music/Zac Brown Band - Knee Deep Feat. Jimmy Buffett (Official Music Video) ｜ You Get What You Give.mp4' },
+            { name: 'Zac Brown Band - Toes', src: '/music/Zac Brown Band - Toes (Official Video).mp4' }
+        ];
+
+        // Populate song list immediately
+        window.addEventListener('DOMContentLoaded', () => {
+            const songList = document.querySelector('.song-list');
+            if (songList) {
+                songList.innerHTML = songs.map(song => `
+                    <div class="song-item" data-src="${song.src}">
+                        <span>${song.name}</span>
+                    </div>
+                `).join('');
+                
+                // Add click handlers
+                songList.querySelectorAll('.song-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const src = item.getAttribute('data-src');
+                        const mediaPlayer = document.getElementById('mediaPlayer');
+                        if (mediaPlayer) {
+                            mediaPlayer.src = src;
+                            mediaPlayer.play().catch(error => {
+                                console.error('Error playing media:', error);
+                                if (error.name === 'NotAllowedError') {
+                                    // If autoplay is blocked, show message
+                                    const message = document.createElement('div');
+                                    message.className = 'autoplay-message';
+                                    message.textContent = 'Click anywhere to start playback';
+                                    document.body.appendChild(message);
+                                    
+                                    // Remove message when clicked
+                                    document.body.addEventListener('click', () => {
+                                        message.remove();
+                                        mediaPlayer.play();
+                                    }, { once: true });
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Offline Music Player</h1>
+        <div class="library-container">
+            <div class="song-list">
+                <div class="song-list-header">
+                    <h2>Songs & Videos</h2>
+                    <button id="add-media" class="control-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add Media
+                    </button>
+                </div>
+                <div id="song-list-items" class="song-list-items">
+                    <!-- Songs will be dynamically added here -->
+                </div>
+            </div>
+            <div class="media-container">
+                <video id="mediaPlayer" class="media-player" controls>
+                    <source id="mediaSource" src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="media-controls">
+                    <button id="previous-btn" class="control-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 18l-6-6 6-6"/>
+                            <path d="M6 18l6-6-6-6"/>
+                        </svg>
+                    </button>
+                    <button id="play-btn" class="control-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 3l14 9-14 9V3z"/>
+                        </svg>
+                    </button>
+                    <button id="pause-btn" class="control-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="6" y="3" width="4" height="18" rx="1" ry="1"/>
+                            <rect x="14" y="3" width="4" height="18" rx="1" ry="1"/>
+                        </svg>
+                    </button>
+                    <button id="volume-btn" class="control-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l6.5 6.5a8 8 0 1 0 10.937-10.937L3 3v6z"/>
+                        </svg>
+                    </button>
+                    <button id="fullscreen-btn" class="control-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m2 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                        </svg>
+                    </button>
+                    <button id="next-btn" class="control-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12l-7-7-7 7 7 7 7-7z"/>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Volume control -->
+                <div id="volume-control" class="volume-control">
+                    <input type="range" id="volume-slider" min="0" max="100" value="50" class="volume-slider">
+                </div>
+                <div class="status">
+                    <p id="status-text">Offline Mode: Working Perfectly</p>
+                    <div id="offline-indicator" class="offline-indicator"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Initialize media player elements and state
+        const mediaPlayer = document.getElementById('mediaPlayer');
+        const playBtn = document.getElementById('play-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const addMediaBtn = document.getElementById('add-media');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const volumeBtn = document.getElementById('volume-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        const songListItems = document.getElementById('song-list-items');
+        const statusText = document.getElementById('status-text');
+        const offlineIndicator = document.getElementById('offline-indicator');
+        const previousBtn = document.getElementById('previous-btn');
+        const nextBtn = document.getElementById('next-btn');
+        let currentSongIndex = -1;
+        let songs = [];
+        let isPlaying = false;
+        let volume = 1.0; // Set volume to maximum
+
+        // Initialize media player
+        mediaPlayer.volume = volume;
+        volumeSlider.value = volume * 100;
+        mediaPlayer.muted = false; // Ensure audio is not muted
+
+        // Add click handlers for controls
+        playBtn.addEventListener('click', () => {
+            if (songs.length > 0) {
+                isPlaying = true;
+                mediaPlayer.src = songs[currentSongIndex].src;
+                mediaPlayer.play().catch(error => {
+                    console.error('Error playing media:', error);
+                });
+            }
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                mediaPlayer.pause();
+                isPlaying = false;
+            }
+        });
+
+        volumeSlider.addEventListener('input', () => {
+            volume = volumeSlider.value / 100;
+            mediaPlayer.volume = volume;
+        });
+
+        fullscreenBtn.addEventListener('click', () => {
+            if (mediaPlayer.requestFullscreen) {
+                mediaPlayer.requestFullscreen();
+            }
+        });
+
+        previousBtn.addEventListener('click', () => {
+            if (songs.length > 0) {
+                currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+                mediaPlayer.src = songs[currentSongIndex].src;
+                mediaPlayer.play().catch(error => {
+                    console.error('Error playing media:', error);
+                });
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (songs.length > 0) {
+                currentSongIndex = (currentSongIndex + 1) % songs.length;
+                mediaPlayer.src = songs[currentSongIndex].src;
+                mediaPlayer.play().catch(error => {
+                    console.error('Error playing media:', error);
+                });
+            }
+        });
+
+        // Add media player event listeners
+        mediaPlayer.addEventListener('play', () => {
+            isPlaying = true;
+            playBtn.style.display = 'none';
+            pauseBtn.style.display = 'block';
+        });
+
+        mediaPlayer.addEventListener('pause', () => {
+            isPlaying = false;
+            playBtn.style.display = 'block';
+            pauseBtn.style.display = 'none';
+        });
+
+        mediaPlayer.addEventListener('ended', () => {
+            if (songs.length > 0) {
+                currentSongIndex = (currentSongIndex + 1) % songs.length;
+                mediaPlayer.src = songs[currentSongIndex].src;
+                mediaPlayer.play().catch(error => {
+                    console.error('Error playing media:', error);
+                });
+            }
+        });
+
+        // Add offline status handler
+        window.addEventListener('online', updateOfflineStatus);
+        window.addEventListener('offline', updateOfflineStatus);
+
+        // Function to update status display
+        function updateStatus() {
+            const isOnline = navigator.onLine;
+            if (isOnline) {
+                statusText.textContent = 'Online Mode: Working Perfectly';
+                statusText.style.color = '#4CAF50';
+                offlineIndicator.style.display = 'none';
+            } else {
+                statusText.textContent = 'Offline Mode: Working Perfectly';
+                statusText.style.color = '#2196F3';
+                offlineIndicator.style.display = 'block';
+            }
+        }
+
+        // Function to update offline status
+        function updateOfflineStatus() {
+            updateStatus();
+        }
+
+        // Function to populate song list
+        function populateSongList() {
+            const songs = [
+                { name: 'Alan Jackson, Jimmy Buffett - It\'s Five O\' Clock Somewhere', src: '/music/Alan Jackson, Jimmy Buffett - It\'s Five O\' Clock Somewhere (Official HD Video).mp4' },
+                { name: 'Billy Currington - People Are Crazy', src: '/music/Billy Currington - People Are Crazy (Official Music Video).mp4' },
+                { name: 'Billy Currington - Pretty Good At Drinkin\' Beer', src: '/music/Billy Currington - Pretty Good At Drinkin\' Beer (Official Music Video).mp4' },
+                { name: 'Chris Stapleton - Starting Over', src: '/music/Chris Stapleton - Starting Over (Official Music Video).mp4' },
+                { name: 'Chris Stapleton - Tennessee Whiskey', src: '/music/Chris Stapleton - Tennessee Whiskey (Official Audio).mp4' },
+                { name: 'Darius Rucker - Wagon Wheel', src: '/music/Darius Rucker - Wagon Wheel (Official Music Video).mp4' },
+                { name: 'Dierks Bentley - 5-1-5-0', src: '/music/Dierks Bentley - 5-1-5-0 (Official Music Video).mp4' },
+                { name: 'Dierks Bentley - Drunk On A Plane', src: '/music/Dierks Bentley - Drunk On A Plane (Official Music Video).mp4' },
+                { name: 'Dierks Bentley - Somewhere On A Beach', src: '/music/Dierks Bentley - Somewhere On A Beach (Official Music Video).mp4' },
+                { name: 'Florida Georgia Line - May We All ft. Tim McGraw', src: '/music/Florida Georgia Line - May We All ft. Tim McGraw.mp4' },
+                { name: 'Kenny Chesney - Don\'t Blink', src: '/music/Kenny Chesney - Don\'t Blink (Official Video).mp4' },
+                { name: 'Kenny Chesney - No Shoes, No Shirt, No Problems', src: '/music/Kenny Chesney - No Shoes, No Shirt, No Problems (Official Video).mp4' },
+                { name: 'Kenny Chesney, Uncle Kracker - When The Sun Goes Down', src: '/music/Kenny Chesney, Uncle Kracker - When The Sun Goes Down (Official Video).mp4' },
+                { name: 'Luke Bryan - Drunk On You', src: '/music/Luke Bryan - Drunk On You (Official Music Video).mp4' },
+                { name: 'Luke Bryan - Huntin\', Fishin\', And Lovin\' Every Day', src: '/music/Luke Bryan - Huntin\', Fishin\', And Lovin\' Every Day (Official Music Video).mp4' },
+                { name: 'Luke Bryan - I Don\'t Want This Night To End', src: '/music/Luke Bryan - I Don\'t Want This Night To End (Official Music Video).mp4' },
+                { name: 'Luke Bryan - That\'s My Kind Of Night', src: '/music/Luke Bryan - That\'s My Kind Of Night (Official Music Video).mp4' },
+                { name: 'Luke Combs - Beautiful Crazy', src: '/music/Luke Combs - Beautiful Crazy (Official Video).mp4' },
+                { name: 'Luke Combs - Hurricane', src: '/music/Luke Combs - Hurricane (Official Video).mp4' },
+                { name: 'Luke Combs - She Got the Best of Me', src: '/music/Luke Combs - She Got the Best of Me (Official Video).mp4' },
+                { name: 'Luke Combs - When It Rains It Pours', src: '/music/Luke Combs - When It Rains It Pours (Official Video).mp4' },
+                { name: 'Rehab - Bartender Song (Sittin\' At A Bar)', src: '/music/Rehab - Bartender Song (Sittin\' At A Bar).mp4' },
+                { name: 'Toby Keith - As Good As I Once Was', src: '/music/Toby Keith - As Good As I Once Was.mp4' },
+                { name: 'Zac Brown Band - Chicken Fried', src: '/music/Zac Brown Band - Chicken Fried (Official Music Video) ｜ The Foundation.mp4' },
+                { name: 'Zac Brown Band - Knee Deep Feat. Jimmy Buffett', src: '/music/Zac Brown Band - Knee Deep Feat. Jimmy Buffett (Official Music Video) ｜ You Get What You Give.mp4' },
+                { name: 'Zac Brown Band - Toes', src: '/music/Zac Brown Band - Toes (Official Video).mp4' }
+            ];
+
+            songListItems.innerHTML = '';
+            songs.forEach((song, index) => {
+                const songItem = document.createElement('div');
+                songItem.className = 'song-item';
+                songItem.textContent = song.name;
+                songItem.onclick = () => {
+                    currentSongIndex = index;
+                    playSong(song.src);
+                };
+                songListItems.appendChild(songItem);
+            });
+
+            if (songs.length > 0) {
+                playSong(songs[0].src);
+            }
+        }
+
+        // Function to play a song
+        function playSong(src) {
+            const mediaSource = document.getElementById('mediaSource');
+            mediaSource.src = src;
+            mediaPlayer.load();
+            
+            // Only try to play if we're responding to user interaction
+            if (isPlaying) {
+                mediaPlayer.play().catch(error => {
+                    console.error('Error playing media:', error);
+                });
+            }
+
+            // Update UI
+            const activeSong = songs.find(s => s.src === src);
+            if (activeSong) {
+                // Remove active class from all items
+                document.querySelectorAll('.song-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Add active class to the current song item
+                const activeSongItem = document.querySelector(`.song-item h3`).closest('.song-item');
+                if (activeSongItem) {
+                    activeSongItem.classList.add('active');
+                }
+            }
+        }
+
+        // Function to toggle play/pause
+        function togglePlay() {
+            if (isPlaying) {
+                mediaPlayer.pause();
+                isPlaying = false;
+            } else {
+                mediaPlayer.play().catch(error => {
+                    console.error('Error playing media:', error);
+                });
+                isPlaying = true;
+            }
+            updatePlayPauseUI();
+        }
+
+        // Function to update play/pause UI
+        function updatePlayPauseUI() {
+            playBtn.style.display = isPlaying ? 'none' : 'block';
+            pauseBtn.style.display = isPlaying ? 'block' : 'none';
+        }
+
+        // Function to update volume UI
+        function updateVolumeUI() {
+            volumeSlider.value = mediaPlayer.volume * 100;
+        }
+
+        // Function to initialize player
+        function initializePlayer() {
+            // Set initial volume
+            mediaPlayer.volume = volume;
+            updateVolumeUI();
+
+            // Add event listeners
+            playBtn.addEventListener('click', togglePlay);
+            pauseBtn.addEventListener('click', togglePlay);
+            playBtn.addEventListener('touchstart', togglePlay);
+            pauseBtn.addEventListener('touchstart', togglePlay);
+
+            volumeSlider.addEventListener('input', () => {
+                mediaPlayer.volume = volumeSlider.value / 100;
+                updateVolumeUI();
+            });
+
+            volumeBtn.addEventListener('click', () => {
+                isMuted = !isMuted;
+                mediaPlayer.muted = isMuted;
+                volumeSlider.style.opacity = isMuted ? '0.5' : '1';
+            });
+
+            fullscreenBtn.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    mediaPlayer.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            // Handle media player events
+            mediaPlayer.addEventListener('play', () => {
+                isPlaying = true;
+                updatePlayPauseUI();
+            });
+
+            mediaPlayer.addEventListener('pause', () => {
+                isPlaying = false;
+                updatePlayPauseUI();
+            });
+
+            // Add error handling
+            window.addEventListener('error', (event) => {
+                console.error('Error:', event.error);
+                alert('An error occurred: ' + event.error.message);
+            });
+        }
+
+        // Initialize everything
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Register service worker
+                navigator.serviceWorker.register('service-worker.js', {
+                    scope: './'
+                })
+                .then(registration => {
+                    console.log('ServiceWorker registration successful');
+                    // Update status when service worker state changes
+                    registration.installing?.addEventListener('statechange', updateStatus);
+                    registration.waiting?.addEventListener('statechange', updateStatus);
+                    registration.active?.addEventListener('statechange', updateStatus);
+
+                    // Get list of cached music files
+                    navigator.serviceWorker.controller?.postMessage({
+                        action: 'getMusicFiles'
+                    });
+
+                    // Listen for music files response
+                    navigator.serviceWorker.addEventListener('message', (event) => {
+                        if (event.data.type === 'musicFiles') {
+                            populateSongList(event.data.files);
+                        }
+                    });
+                })
+                .catch(err => {
+                    console.error('ServiceWorker registration failed: ', err);
+                    document.getElementById('status-text').textContent = 'Service Worker Error: ' + err.message;
+                });
+            });
+        }
+
+        // Add network change listeners
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+
+        // Previous/Next controls
+        previousBtn.addEventListener('click', () => {
+            if (currentSongIndex > 0) {
+                currentSongIndex--;
+                playSong(songs[currentSongIndex].src);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSongIndex < songs.length - 1) {
+                currentSongIndex++;
+                playSong(songs[currentSongIndex].src);
+            }
+        });
+
+        // Add media button
+        addMediaBtn.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'video/mp4';
+            input.multiple = true;
+            input.onchange = (e) => {
+                const files = Array.from(e.target.files);
+                files.forEach(file => {
+                    const fileName = file.name;
+                    const songItem = document.createElement('div');
+                    songItem.className = 'song-item';
+                    songItem.innerHTML = `
+                        <div class="song-info">
+                            <h3>${fileName}</h3>
+                            <p>MP4 Video</p>
+                        </div>
+                        <div class="song-controls">
+                            <button class="play-song">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 3l14 9-14 9V3z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                    
+                    songItem.querySelector('.play-song').addEventListener('click', () => {
+                        playSong(`/music/${fileName}`);
+                    });
+                    
+                    songs.push({
+                        name: fileName,
+                        type: 'video/mp4',
+                        src: `/music/${fileName}`
+                    });
+                    
+                    songListItems.appendChild(songItem);
+                });
+            };
+            input.click();
+        });
+
+        // Initialize song list and player
+        populateSongList();
+        initializePlayer();
+    </script>
+</body>
+</html>

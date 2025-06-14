@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <link rel="stylesheet" href="player.css">
+</head>
+<body>
+    <div class="player-container">
+        <div class="media-wrapper">
+            <video id="mediaPlayer" class="media-player" controls></video>
+        </div>
+        <div class="controls">
+            <button id="playPauseBtn" class="control-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 3l14 9-14 9V3z"/>
+                </svg>
+            </button>
+            <div class="progress-container">
+                <input type="range" id="progress" min="0" max="100" value="0">
+                <span id="currentTime">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+            <div class="volume-container">
+                <input type="range" id="volumeControl" min="0" max="100" value="100">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l6-6 6 6M3 15l6 6 6-6M18 12A6 6 0 0 0 6 12c0 1.66 1 3.19 2.5 4.38"/>
+                </svg>
+            </div>
+            <button id="fullscreenBtn" class="control-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                </svg>
+            </button>
+            <button id="modeToggle" class="control-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 14l-2-2m0 0l-2-2m2 2l2 2M5 8h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="playlist-container">
+            <div class="playlist-header">
+                <h2>Playlist</h2>
+                <span id="offlineStatus">Online Mode</span>
+            </div>
+            <div id="playlist" class="playlist"></div>
+        </div>
+    </div>
+    <script src="player.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{
+    "name": "Music Player",
+    "short_name": "Music",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#007bff",
+    "orientation": "portrait",
+    "scope": "/",
+    "prefer_related_applications": true,
+    "related_applications": [],
+    "icons": [
+        {
+            "src": "icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "splash_screen": {
+        "android_theme_color": "#007bff",
+        "background_color": "#ffffff",
+        "image": "icon-512x512.png",
+        "orientation": "portrait"
+    },
+    "shortcuts": [
+        {
+            "name": "Play Music",
+            "short_name": "Play",
+            "description": "Play music videos",
+            "url": "/index.html",
+            "icons": [
+                {
+                    "src": "icon-192x192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
+        }
+    ],
+    "share_target": {
+        "action": "/index.html",
+        "method": "GET",
+        "params": {
+            "title": "name",
+            "text": "description",
+            "url": "url"
+        }
+    }
+}
