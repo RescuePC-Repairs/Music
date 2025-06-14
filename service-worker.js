@@ -1,6 +1,4 @@
 const CACHE_NAME = 'music-player-v2';
-
-// Get the GitHub Pages URL
 const GITHUB_URL = 'https://rescuepc-repairs.github.io/Music/';
 
 // Cache static assets
@@ -71,6 +69,7 @@ self.addEventListener('install', event => {
             })
             .catch(error => {
                 console.error('Installation failed:', error);
+                return Promise.resolve(); // Return a resolved promise
             })
     );
 });
